@@ -3,15 +3,19 @@ import pytest
 from utilites.users_validation import user_validation, is_active_user
 
 
-def build_user():
-    return [
-        {
-        "id": 1,
-        "email": "test@example.com",
-        "status": "active",
-        "created_at": "2026-07-03"
+def build_user(
+        user_id=1,
+        email="test@example.com",
+        status="active",
+        created_at="2026-07-03"
+):
+    return {
+        "id": user_id,
+        "email": email,
+        "status": status,
+        "created_at": created_at
     }
-    ]
+
 
 def test_validate_users_success(valid_user):
     result = user_validation(valid_user)
@@ -20,14 +24,7 @@ def test_validate_users_success(valid_user):
 
 
 def test_empty_email_validation():
-    empty_email_user = [
-        {
-            "id": 1,
-            "email": "",
-            "status": "active",
-            "created_at": "2026-07-03",
-        }
-    ]
+    empty_email_user = [build_user(email="")]
 
     result = user_validation(empty_email_user)
     expected_result = [f"User with id {empty_email_user[0]['id']} has empty email"]
@@ -36,8 +33,7 @@ def test_empty_email_validation():
 
 
 def test_invalid_email_validation():
-    invalid_email_user = build_user()
-    invalid_email_user[0]["email"] = "mironovav1993gmail.com"
+    invalid_email_user = [build_user(email="mironovav1993gmail.com")]
 
     result = user_validation(invalid_email_user)
     expected_result = [f"User with id {invalid_email_user[0]['id']} has invalid email"]
@@ -46,8 +42,7 @@ def test_invalid_email_validation():
 
 
 def test_invalid_status_validation():
-    invalid_status_user = build_user()
-    invalid_status_user[0]["status"] = "invalid"
+    invalid_status_user = [build_user(status="invalid")]
 
     result = user_validation(invalid_status_user)
     expected_result = [f"User with id {invalid_status_user[0]['id']} has invalid status: {invalid_status_user[0]['status']}"]
@@ -56,14 +51,7 @@ def test_invalid_status_validation():
 
 
 def test_empty_created_at_validation():
-    empty_created_at_user = [
-        {
-            "id": 1,
-            "email": "mironovav1993@gmail.com",
-            "status": "active",
-            "created_at": "",
-        }
-    ]
+    empty_created_at_user = [build_user(created_at="")]
 
     result = user_validation(empty_created_at_user)
     expected_result = [f"User with id {empty_created_at_user[0]['id']} has empty created_at"]
@@ -73,18 +61,8 @@ def test_empty_created_at_validation():
 
 def test_duplicate_id_validation():
     duplicate_id_user = [
-        {
-            "id": 1,
-            "email": "mironovav1993@gmail.com",
-            "status": "active",
-            "created_at": "2026-07-03",
-        },
-        {
-            "id": 1,
-            "email": "mironovav@gmail.com",
-            "status": "active",
-            "created_at": "2026-07-03",
-        },
+        build_user(user_id=1),
+        build_user(user_id=1)
     ]
 
     result = user_validation(duplicate_id_user)
@@ -129,3 +107,11 @@ def test_active_status_validation(user, expected_result):
     result = is_active_user(user)
 
     assert result is expected_result
+
+
+def test_type_validation():
+    invalid_type_users = build_user()
+
+    with pytest.raises(TypeError) as error:
+        user_validation(invalid_type_users)
+    assert str(error.value) == "users must be a list"

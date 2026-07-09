@@ -1,4 +1,8 @@
 def user_validation(users):
+
+    if not isinstance(users,list):
+        raise TypeError("users must be a list")
+
     user_list = []
     seen_ids = []
 
