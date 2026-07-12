@@ -1,5 +1,5 @@
 import pytest
-
+from clients.users_client import UsersClient
 
 @pytest.fixture
 def valid_user():
@@ -11,3 +11,12 @@ def valid_user():
             "created_at": "2026-07-03",
         }
     ]
+
+@pytest.fixture
+def base_url():
+    return "https://jsonplaceholder.typicode.com"
+
+
+@pytest.fixture
+def users_client(base_url):
+    return UsersClient(base_url)
